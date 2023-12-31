@@ -10,125 +10,76 @@ ls        - show file system
 export const Terminal = () => {
   const defaultTerminalPrompt = "SubTerm 1.0";
 
-  interface FileSystemFiles {
-    [key: string]: string;
-  }
-
-  interface FileSystemFunctions {
-    [key: string]: {
-      function: () => void;
-    };
-  }
-
-  interface FileSystemFolder {
-    [key: string]: {
-      folderName: string;
-      files?: FileSystemFiles[];
-      functions?: FileSystemFunctions[];
-      children?: FileSystemFolder[];
-    };
-  }
-
-  type FileSystem = FileSystemFolder[];
-
   // ship systems functions
   const showShipStatus = () => {
     console.log("status");
   };
 
-  // probably should use this instead of fileTree
-  const typedFileTree: FileSystem = [
+  interface Folder {
+    folderName: String;
+    children?: String[];
+    files?: File[];
+    functions?: Function[];
+    parent?: String;
+  }
+
+  interface File {
+    fileName: String;
+    fileContents: String;
+  }
+
+  interface Function {
+    functionName: String;
+    functionCommand: () => void;
+  }
+
+  const rootFolder: Folder = {
+    folderName: "root",
+    children: ["logs", "systems"],
+  };
+
+  const folderTree: Folder[] = [
+    rootFolder,
     {
-      root: {
-        folderName: "root",
-        children: [
-          {
-            logs: {
-              folderName: "logs",
-              files: [{ errorLog: "error: ship sinking" }],
-            },
-            systems: {
-              folderName: "systems",
-              functions: [
-                {
-                  status: {
-                    function: showShipStatus,
-                  },
-                },
-                {
-                  enablePower: {
-                    function: () => {},
-                  },
-                },
-                {
-                  disablePower: {
-                    function: () => {},
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
+      folderName: "logs",
+      files: [{ fileName: "errorLog", fileContents: "many errors" }],
+      parent: "root",
+    },
+    {
+      folderName: "systems",
+      parent: "root",
+      functions: [
+        {
+          functionName: "status",
+          functionCommand: showShipStatus,
+        },
+        {
+          functionName: "enablePower",
+          functionCommand: () => {},
+        },
+        {
+          functionName: "disablePower",
+          functionCommand: () => {},
+        },
+      ],
     },
   ];
-
-  const fileTree = {
-    root: {
-      folderName: "root",
-      children: {
-        logs: {
-          folderName: "logs",
-          files: [{ errorLog: "error: ship sinking" }],
-        },
-        systems: {
-          folderName: "systems",
-          functions: [
-            {
-              status: {
-                function: showShipStatus,
-              },
-            },
-            {
-              enablePower: {
-                function: () => {},
-              },
-            },
-            {
-              disablePower: {
-                function: () => {},
-              },
-            },
-          ],
-        },
-      },
-    },
-  };
 
   // state stuff
   const [userInput, setUserInput] = useState("");
   const [terminalPrompt, setTerminalPrompt] = useState(defaultTerminalPrompt);
   const [error, setError] = useState("");
-  const [currentFileSystemLocation, setCurrentFileSystemLocation] = useState(
-    fileTree.root
-  );
+  const [currentFileSystemLocation, setCurrentFileSystemLocation] =
+    useState<Folder>(rootFolder);
+
+  console.log("currentFileSystemLocation", currentFileSystemLocation);
 
   const showFileSystem = () => {
-    let promptString = `${currentFileSystemLocation.folderName}`;
-    console.log("keys", Object.keys(currentFileSystemLocation.children));
-    promptString += Object.keys(currentFileSystemLocation.children)
-      .map((childFolderName) => `\n  - ${childFolderName}`)
-      .join(" ");
-    return promptString;
+    console.log("showFileSystem");
   };
 
-  const enterFolder = (targetFolder: string) => {
-    const availableFolders = Object.keys(currentFileSystemLocation.children);
-    if (availableFolders.includes(targetFolder)) {
-      // setting the file system to match the object above is kinda hard...may need more better typing
-    } else {
-      setError(`Folder ${targetFolder} not found`);
-    }
+  const enterFolder = () => {
+    console.log("enterFolder");
   };
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
